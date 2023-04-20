@@ -90,3 +90,129 @@ class linkInfo:
 class Event:
 	def __init__(self, data: dict = {}):
 		self.json = data
+		self.comId = self.json.get("ndcId")
+		self.alertOption = self.json.get("alertOption")
+		self.membershipStatus = self.json.get("membershipStatus")
+		self.message = Message(self.json.get("chatMessage", {}))
+		self.replyMessage = Message(self.message.extensions.get("replyMessage", {}))
+
+
+class Message:
+	def __init__(self, data: dict = {}):
+		self.json = data
+		self.author = UserProfile(self.json.get("author", {}))
+		self.chatId = self.json.get("threadId")
+		self.mediaType = self.json.get("mediaType")
+		self.mediaValue = self.json.get("mediaValue")
+		self.content = self.json.get("content")
+		self.clientRefId = self.json.get("clientRefId")
+		self.messageId = self.json.get("messageId")
+		self.userId = self.json.get("uid")
+		self.createdTime = self.json.get("createdTime")
+		self.messageType = self.json.get("type")
+		self.isHidden = self.json.get("isHidden")
+		self.includedInSummary = self.json.get("includedInSummary")
+		self.extensions = self.json.get("extensions", {})
+		self.originalStickerId = self.extensions.get("originalStickerId")
+		self.stiker = Stiker(self.extensions.get("sticker", {}))
+		self.duration = self.extensions.get("duration")
+		self.chatBubbleId = self.json.get("chatBubbleId")
+		self.chatBubbleVersion = self.json.get("chatBubbleVersion")
+
+
+
+class Stiker:
+	def __init__(self, data: dict = {}):
+		self.json = data
+		self.status = self.json.get("status")
+		self.iconV2 = self.json.get("iconV2")
+		self.stickerId = self.json.get("stickerId")
+		self.usedCount = self.json.get("usedCount")
+		self.icon = self.json.get("icon")
+
+
+class Wallet:
+	def __init__(self, data: dict = {}):
+		self.json = data
+		self.totalCoinsFloat = self.json.get("totalCoinsFloat")
+		self.adsEnabled = self.json.get("adsEnabled")
+		self.adsVideoStats = self.json.get("adsVideoStats")
+		self.adsFlags = self.json.get("adsFlags")
+		self.totalCoins = self.json.get("totalCoins")
+		self.businessCoinsEnabled = self.json.get("businessCoinsEnabled")
+		self.totalBusinessCoins = self.json.get("totalBusinessCoins")
+		self.totalBusinessCoinsFloat = self.json.get("totalBusinessCoinsFloat")
+
+
+class coinHistoryList:
+	def __init__(self, data: dict = []):
+		self.json = data
+		self.historyList = list()
+		for transaction in self.json:
+			self.historyList.append(self.Transaction(transaction))
+
+	class Transaction:
+		def __init__(self, data: dict = {}):
+			self.json = data
+			self.taxCoinsFloat = self.json.get("taxCoinsFloat")
+			self.sourceType = self.json.get("sourceType")
+			self.bonusCoins = self.json.get("bonusCoins")
+			self.bonusCoinsFloat = self.json.get("bonusCoinsFloat")
+			self.originCoinsFloat = self.json.get("originCoinsFloat")
+			self.userId = self.json.get("uid")
+			self.taxCoins = self.json.get("taxCoins")
+			self.changedCoinsFloat = self.json.get("changedCoinsFloat")
+			self.totalCoinsFloat = self.json.get("totalCoinsFloat")
+			self.extData = self.json.get("extData")
+			self.isPositive = self.json.get("isPositive")
+			self.createdTime = self.json.get("createdTime")
+			self.totalCoins = self.json.get("totalCoins")
+			self.changedCoins = self.json.get("changedCoins")
+			self.originCoins = self.json.get("originCoins")
+
+
+class userProfileList:
+	def __init__(self, data: dict = []):
+		self.json = data
+		self.userProfileCount = self.json.get("userProfileCount")
+		self.userProfileList = list()
+		for user in self.json.get("userProfileList", []):
+			self.userProfileList.append(UserProfile(user))
+
+
+
+class communityList:
+	def __init__(self, data: dict = []):
+		self.json = data
+		self.allItemCount = self.json.get("allItemCount")
+		self.nextPageToken = self.json.get("paging", {}).get("nextPageToken")
+		self.communityList = list()
+		for community in self.json.get("communityList", []):
+			self.communityList.append(CommunityInfo(community))
+
+
+class CommunityInfo:
+	def __init__(self, data: dict = []):
+		self.json = data
+		self.userAddedTopicList = self.json.get("userAddedTopicList")
+		self.agent = UserProfile(self.json.get("agent")) if self.json.get("agent") else None
+		self.listedStatus = self.json.get("listedStatus")
+		self.probationStatus = self.json.get("probationStatus")
+		self.themePack = self.json.get("themePack")
+		self.membersCount = self.json.get("membersCount")
+		self.primaryLanguage = self.json.get("primaryLanguage")
+		self.communityHeat = self.json.get("communityHeat")
+		self.tagline = self.json.get("tagline")
+		self.joinType = self.json.get("joinType")
+		self.status = self.json.get("status")
+		self.modifiedTime = self.json.get("modifiedTime")
+		self.comId = self.json.get("ndcId")
+		self.activeInfo = self.json.get("activeInfo")
+		self.promotionalMediaList = self.json.get("activeInfo")
+		self.icon = self.json.get("icon")
+		self.link = self.json.get("link")
+		self.updatedTime = self.json.get("updatedTime")
+		self.endpoint = self.json.get("endpoint")
+		self.name = self.json.get("name")
+		self.templateId = self.json.get("templateId")
+		self.createdTime = self.json.get("createdTime")

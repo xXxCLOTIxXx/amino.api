@@ -4,6 +4,7 @@ from websocket import WebSocketApp, enableTrace
 from threading import Thread
 from sys import _getframe as getframe
 from random import randint
+from traceback import format_exc
 
 from .utils import objects
 from .utils.exceptions import SocketNotStarted
@@ -12,7 +13,6 @@ class SocketHandler:
 	def __init__(self, req, sock_trace: bool = False, debug: bool = False):
 		self.socket_url = "wss://ws1.narvii.com"
 		self.debug = debug
-		print(self.debug)
 		self.socket = None
 		self.reconnectTime = 60
 		self.active = False
@@ -77,7 +77,11 @@ class SocketHandler:
 
 
 	def handle_message(self, ws, data):
-		return self.resolve(data)
+		data = loads(data)
+		try:
+			self.resolve(data)
+		except:
+			print(format_exc())
 
 	def send(self, data):
 		if self.debug:
@@ -171,8 +175,8 @@ class Callbacks:
 		return self.chat_actions_end.get(key, self.default)(data)
 
 	def resolve(self, data):
-		data = loads(data)
-		return self.methods.get(data["t"], self.default)(data)
+		self.on_reslove(data)
+		self.methods.get(data["t"], self.default)(data)
 
 	def call(self, type, data):
 		if type in self.handlers:
@@ -240,5 +244,6 @@ class Callbacks:
 
 	def on_user_typing_start(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]))
 	def on_user_typing_end(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]))
+	def on_reslove(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]))
 
 	def default(self, data): self.call(getframe(0).f_code.co_name, data)

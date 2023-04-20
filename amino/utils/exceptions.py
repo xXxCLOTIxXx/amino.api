@@ -18,6 +18,12 @@ class SocketNotStarted(Exception):
 		Exception.__init__(*args, **kwargs)
 
 
+class IncorrectType(Exception):
+	def __init__(*args, **kwargs):
+		Exception.__init__(*args, **kwargs)
+
+
+
 errors = {
 }
 

@@ -23,8 +23,8 @@ __title__ = 'amino.py-api'
 __author__ = 'Xsarz'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2023 Xsarz'
-__version__ = '1.0'
-__newest__ = loads(get("https://pypi.org/project/amino.api/json").text)["info"]["version"]
+__version__ = '1.0b2'
+__newest__ = loads(get("https://pypi.org/pypi/amino.api/json").text)["info"]["version"]
 
 
 

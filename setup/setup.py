@@ -1,12 +1,46 @@
 from setuptools import setup, find_packages
-from json import load
 
-with open("config.json", "r") as file:
-	info = load(file)
+
+info = {
+	"name": "amino.api",
+	"version": "1.0b2",
+	"github_page": "https://github.com/xXxCLOTIxXx/amino.api",
+	"download_link": "https://github.com/xXxCLOTIxXx/amino.api/archive/refs/heads/main.zip",
+	"license": "MIT",
+	"author": "Xsarz",
+	"author_email": "xsarzy@gmail.com",
+	"description": "Library for creating amino bots and scripts.",
+	"long_description": None,
+	"long_description_file": "README.md",
+	"long_description_content_type": "text/markdown",
+	"keywords": [
+		"aminoapps",
+		"aminoxz",
+		"amino",
+		"amino-bot",
+		"pymino",
+		"python-amino",
+		"amino.py",
+		"narvii",
+		"api",
+		"python",
+		"python3",
+		"python3.x",
+		"xsarz",
+		"official"
+	],
+
+	"install_requires": [
+		"requests"
+	]
+
+}
+
+
 if info.get("long_description"):
 	long_description=info.get("long_description")
 else:
-	with open("README.md", "r") as file:
+	with open(info.get("long_description_file"), "r") as file:
 		long_description = file.read()
 
 setup(
