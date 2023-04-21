@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 info = {
 	"name": "amino.api",
-	"version": "1.1",
+	"version": "1.2b1",
 	"github_page": "https://github.com/xXxCLOTIxXx/amino.api",
 	"download_link": "https://github.com/xXxCLOTIxXx/amino.api/archive/refs/heads/main.zip",
 	"license": "MIT",
@@ -19,6 +19,7 @@ info = {
 		"amino",
 		"amino-bot",
 		"pymino",
+		"medialab",
 		"python-amino",
 		"amino.py",
 		"narvii",
@@ -27,11 +28,15 @@ info = {
 		"python3",
 		"python3.x",
 		"xsarz",
+		"imperialwool",
 		"official"
 	],
 
 	"install_requires": [
-		"requests"
+		"requests",
+		"json_minify",
+		"websocket-client==1.3.1",
+		"websockets"
 	]
 
 }

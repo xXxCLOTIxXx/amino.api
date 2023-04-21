@@ -9,6 +9,8 @@ from requests import Session
 from typing import Union, BinaryIO
 from base64 import b64encode
 from json_minify import json_minify
+from uuid import uuid4
+from io import BytesIO
 
 class Client(SocketHandler, Callbacks):
 	def __init__(self, socket_enabled: bool = True, socket_debug: bool = False, socket_trace: bool = False,  auto_device: bool = False, deviceId: str = None, proxies: dict = None, certificatePath = None):
@@ -166,7 +168,7 @@ class Client(SocketHandler, Callbacks):
 		return response.status_code
 
 
-	def send_message(self, chatId: str, comId: Union[int, str] = None, message: str = None, messageType: int = 0, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None, embedId: str = None, embedType: int = None, embedLink: str = None, embedTitle: str = None, embedContent: str = None, embedImage: BinaryIO = None):
+	def send_message(self, chatId: str, message: str = None, messageType: int = 0, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None, embedId: str = None, embedType: int = None, embedLink: str = None, embedTitle: str = None, embedContent: str = None, embedImage: BinaryIO = None):
 
 		if message and file is None:
 			message = message.replace("<@", "‎‏").replace("@>", "‬‭")
@@ -223,7 +225,41 @@ class Client(SocketHandler, Callbacks):
 		response = self.req.make_request(method="POST", endpoint=f"/g/s/chat/thread/{chatId}/message", body=dumps(data))
 		return response.status_code
 
-
+	def send_video(self, chatId: str, message: str = None, videoFile: BytesIO = None, imageFile: BytesIO = None, mediaUhqEnabled: bool = False):
+		
+		filename = str(uuid4()).upper()
+		сover, video = f"{filename}_thumb.jpg", f"{filename}.mp4"
+		
+		data = {
+			"clientRefId": int(timestamp() / 10 % 1000000000),
+			"content": message,
+			"mediaType": 123,
+			"videoUpload":
+			{
+				"contentType": "video/mp4",
+				"cover": сover,
+				"video": video
+			},
+			"type": 4,
+			"timestamp": int(timestamp() * 1000),
+			"mediaUhqEnabled": mediaUhqEnabled,
+			"extensions": {}	
+		}
+		
+		files = {
+			video: (video, videoFile.read(), 'video/mp4'),
+			сover: (сover, imageFile.read(), 'application/octet-stream'),
+			'payload': (None, data, 'application/octet-stream')
+		}
+		
+		response = self.req.make_request(
+			method="POST",
+			endpoint=f"/g/s/chat/thread/{chatId}/message",
+			body=dumps(data),
+			files=files
+		)
+		
+		return response.status_code
 
 	def delete_message(self, chatId: str, messageId: str, asStaff: bool = False, reason: str = None):
 
@@ -407,7 +443,7 @@ class Client(SocketHandler, Callbacks):
 				"deviceID": deviceId
 			},
 			"phoneNumberValidationContext": None,
-			"deviceID": device_id
+			"deviceID": deviceId
 		})
 
 
