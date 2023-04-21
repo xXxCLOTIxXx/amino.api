@@ -1,3 +1,2 @@
 # amino.api
-
-#CONTACTS   https://linktr.ee/xsarz
+# CONTACTS https://linktr.ee/xsarz
