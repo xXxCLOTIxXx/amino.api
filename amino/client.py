@@ -74,6 +74,13 @@ class Client(SocketHandler, Callbacks):
 		return self.profile
 
 
+	def login_sid(self, sid: str):
+		self.profile = objects.profile({"sid": sid, "auid": self.req.gen.sid_to_uid(sid)})
+		self.req._set(1, self.profile.sid)		
+		if self.socket_enabled:self.connect()
+		return self.profile
+
+
 
 	def logout(self):
 
@@ -263,6 +270,288 @@ class Client(SocketHandler, Callbacks):
 
 	def send_active_obj(self, comId: str, tz: int = None, timers: list = None):
 		#TODO
-		data = json_minify(dumps({"userActiveTimeChunkList": timers, "timestamp": int(timestamp() * 1000), "optInAdsFlags": 2147483647, "timezone": tz if tz else self.req.gen.timezone()}))
+		data = json_minify(dumps({"userActiveTimeChunkList": timers if timers else self.req.gen.timers(), "timestamp": int(timestamp() * 1000), "optInAdsFlags": 2147483647, "timezone": tz if tz else self.req.gen.timezone()}))
 		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/community/stats/user-active-time", body=data)
 		return response.status_code
+
+
+	def request_verify_code(self, email: str, resetPassword: bool = False):
+
+		data = {
+			"identity": email,
+			"type": 1,
+			"deviceID": self.req.gen.get_headers(deviceId=self.req.deviceId).get("NDCDEVICEID")
+		}
+
+		if resetPassword:
+			data["level"] = 2
+			data["purpose"] = "reset-password"
+
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/auth/request-security-validation", body=dumps(data))
+		return response.status_code
+
+
+	def register(self, nickname: str, email: str, password: str, verificationCode: str, deviceId: str = None):
+
+		data = dumps({
+			"secret": f"0 {password}",
+			"deviceID": self.req.gen.get_headers(deviceId=self.req.deviceId).get("NDCDEVICEID"),
+			"email": email,
+			"clientType": 100,
+			"nickname": nickname,
+			"latitude": 0,
+			"longitude": 0,
+			"address": None,
+			"clientCallbackURL": "narviiapp://relogin",
+			"validationContext": {
+				"data": {
+					"code": verificationCode
+				},
+				"type": 1,
+				"identity": email
+			},
+			"type": 1,
+			"identity": email,
+			"timestamp": int(timestamp() * 1000)
+		})
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/auth/register", body=data)
+		return loads(response.text)
+
+
+
+	def verify_account(self, email: str, code: str):
+
+		data = dumps({
+			"validationContext": {
+				"type": 1,
+				"identity": email,
+				"data": {"code": code}},
+			"deviceID": self.device_id,
+			"timestamp": int(timestamp() * 1000)
+		})
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/auth/check-security-validation", body=data)
+		return response.status_code
+
+
+	def delete_account(self, password: str):
+
+		data = dumps({
+			"deviceID": self.req.gen.get_headers(deviceId=self.req.deviceId).get("NDCDEVICEID"),
+			"secret": f"0 {password}"
+		})
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/account/delete-request", body=data)
+		return response.status_code
+
+
+
+
+	def restore_account(self, email: str, password: str):
+
+		data = dumps({
+			"secret": f"0 {password}",
+			"deviceID": self.req.gen.get_headers(deviceId=self.req.deviceId).get("NDCDEVICEID"),
+			"email": email,
+			"timestamp": int(timestamp() * 1000)
+		})
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/account/delete-request/cancel", body=data)
+		return response.status_code
+
+
+	def activate_account(self, email: str, code: str):
+
+		data = dumps({
+			"type": 1,
+			"identity": email,
+			"data": {"code": code},
+			"deviceID": self.req.gen.get_headers(deviceId=self.req.deviceId).get("NDCDEVICEID")
+		})
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/auth/activate-email", body=data)
+		return response.status_code
+
+
+	def configure_gender(self, age: int, gender: str):
+
+		if gender.lower() == "male": gender = 1
+		elif gender.lower() == "female": gender = 2
+		elif gender.lower() == "non-binary": gender = 255
+		else: raise exceptions.IncorrectType(gender)
+		if age <= 12: raise exceptions.AgeTooLow(age)
+
+		data = dumps({
+			"age": age,
+			"gender": gender,
+			"timestamp": int(timestamp() * 1000)
+		})
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/persona/profile/basic", body=data)
+		return response.status_code
+
+
+	def change_password(self, email: str, password: str, code: str):
+		deviceId = self.req.gen.get_headers(deviceId=self.req.deviceId).get("NDCDEVICEID")
+
+		data = dumps({
+			"updateSecret": f"0 {password}",
+			"emailValidationContext": {
+				"data": {
+					"code": code
+				},
+				"type": 1,
+				"identity": email,
+				"level": 2,
+				"deviceID": deviceId
+			},
+			"phoneNumberValidationContext": None,
+			"deviceID": device_id
+		})
+
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/auth/reset-password", body=data)
+		return response.status_code
+
+
+	def get_eventlog(self, language: str = "en"):
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/eventlog/profile?language={language.lower()}")
+		return loads(response.text)
+
+
+	def get_my_communities(self, start: int = 0, size: int = 25):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/community/joined?v=1&start={start}&size={size}")
+		return objects.communityList(loads(response.text)["communityList"])
+
+
+	def get_profile_in_communities(self, start: int = 0, size: int = 25):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/community/joined?v=1&start={start}&size={size}")
+		return loads(response.text)["userInfoInCommunities"]
+
+
+	def get_user_info(self, userId: str):
+
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/user-profile/{userId}")
+		return objects.UserProfile(loads(response.text)["userProfile"])
+
+
+	def get_chat_threads(self, start: int = 0, size: int = 25):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/chat/thread?type=joined-me&start={start}&size={size}")
+		return objects.ThreadList(loads(response.text)["threadList"])
+
+
+	def get_chat_thread(self, chatId: str):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/chat/thread/{chatId}")
+		return objects.ThreadList(loads(response.text)["thread"])
+
+
+	def get_chat_members(self, chatId: str, start: int = 0, size: int = 25, type: str = "default"):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/chat/thread/{chatId}/member?start={start}&size={size}&type={type}&cv=1.2")
+		return objects.userProfileList(loads(response.text)["memberList"])
+
+
+
+	def start_chat(self, userId: Union[str, list], message: str, title: str = None, content: str = None, isGlobal: bool = False, publishToGlobal: bool = False):
+
+		if isinstance(userId, str): userIds = [userId]
+		elif isinstance(userId, list): userIds = userId
+		else: raise exceptions.IncorrectType(type(userId))
+
+		data = {
+			"title": title,
+			"inviteeUids": userIds,
+			"initialMessageContent": message,
+			"content": content,
+			"timestamp": int(timestamp() * 1000)
+		}
+
+		if isGlobal: data["type"] = 2; data["eventSource"] = "GlobalComposeMenu"
+		else: data["type"] = 0
+
+		if publishToGlobal: data["publishToGlobal"] = 1
+		else: data["publishToGlobal"] = 0
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/chat/thread", body=dumps(data))
+		return objects.Thread(loads(response.text)["thread"])
+
+
+
+	def invite_to_chat(self, userId: Union[str, list], chatId: str):
+
+		if isinstance(userId, str): userIds = [userId]
+		elif isinstance(userId, list): userIds = userId
+		else: raise exceptions.IncorrectType(type(userId))
+
+		data = dumps({
+			"uids": userIds,
+			"timestamp": int(timestamp() * 1000)
+		})
+
+		response = self.req.make_request(method="POST", endpoint=f"/g/s/chat/thread/{chatId}/member/invite", body=data)
+		return response.status_code
+
+
+
+	def kick(self, userId: str, chatId: str, allowRejoin: bool = True):
+
+		response = self.req.make_request(method="DELETE", endpoint=f"/g/s/chat/thread/{chatId}/member/{userId}?allowRejoin={1 if allowRejoin else 0}")
+		return response.status_code
+
+
+	def get_chat_messages(self, chatId: str, size: int = 25, pageToken: str = None):
+
+		response = self.req.make_request(method="GET",
+			endpoint=f"/g/s/chat/thread/{chatId}/message?v=2&pagingType=t&size={size}{f'&pageToken={pageToken}' if pageToken else ''}")
+		return objects.MessageList(loads(response.text))
+
+
+	def get_message_info(self, chatId: str, messageId: str):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/chat/thread/{chatId}/message/{messageId}")
+		return objects.Message(loads(response.text)["message"])
+
+
+	def get_community_info(self, comId: str):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s-x{comId}/community/info?withInfluencerList=1&withTopicList=true&influencerListOrderStrategy=fansCount")
+		return objects.CommunityInfo(loads(response.text)["community"])
+
+
+	def search_community(self, aminoId: str):
+		#TODO
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/search/amino-id-and-link?q={aminoId}")
+		return response.text
+
+
+	def get_user_following(self, userId: str, start: int = 0, size: int = 25):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/user-profile/{userId}/joined?start={start}&size={size}")
+		return objects.userProfileList(loads(response.text))
+
+
+	def get_user_followers(self, userId: str, start: int = 0, size: int = 25):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/user-profile/{userId}/member?start={start}&size={size}")
+		return objects.userProfileList(loads(response.text))
+
+
+
+	def get_user_visitors(self, userId: str, start: int = 0, size: int = 25):
+		#TODO
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/user-profile/{userId}/visitors?start={start}&size={size}")
+		return loads(response.text)
+
+
+	def get_blocked_users(self, start: int = 0, size: int = 25):
+
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/block?start={start}&size={size}")
+		return objects.userProfileList(loads(response.text))

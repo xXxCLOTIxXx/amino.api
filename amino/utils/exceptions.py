@@ -22,7 +22,9 @@ class IncorrectType(Exception):
 	def __init__(*args, **kwargs):
 		Exception.__init__(*args, **kwargs)
 
-
+class AgeTooLow(Exception):
+	def __init__(*args, **kwargs):
+		Exception.__init__(*args, **kwargs)
 
 errors = {
 }

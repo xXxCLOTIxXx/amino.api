@@ -19,11 +19,11 @@ from os import system as s
 from json import loads
 from requests import get
 
-__title__ = 'amino.py-api'
+__title__ = 'amino.api'
 __author__ = 'Xsarz'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2023 Xsarz'
-__version__ = '1.0b2'
+__version__ = '1.1'
 __newest__ = loads(get("https://pypi.org/pypi/amino.api/json").text)["info"]["version"]
 
 

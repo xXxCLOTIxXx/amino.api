@@ -216,3 +216,60 @@ class CommunityInfo:
 		self.name = self.json.get("name")
 		self.templateId = self.json.get("templateId")
 		self.createdTime = self.json.get("createdTime")
+
+
+
+
+class ThreadList:
+	def __init__(self, data: dict = []):
+		self.json = data
+		self.chats = list()
+		for chat in self.json:
+			if isinstance(chat, dict):
+				self.chats.append(Thread(chat))
+
+
+class Thread:
+	def __init__(self, data: dict = []):
+		self.json = data
+		self.userAddedTopicList = self.json.get("userAddedTopicList", [])
+		self.membersQuota = self.json.get("membersQuota")
+		self.membersSummary = list()
+		self.chatId = self.json.get("threadId")
+		self.keywords = self.json.get("keywords")
+		self.membersCount = self.json.get("membersCount")
+		self.strategyInfo = self.json.get("strategyInfo")
+		self.isPinned = self.json.get("isPinned")
+		self.title = self.json.get("title")
+		self.membershipStatus = self.json.get("membershipStatus")
+		self.content = self.json.get("content")
+		self.needHidden = self.json.get("needHidden")
+		self.alertOption = self.json.get("alertOption")
+		self.lastReadTime = self.json.get("lastReadTime")
+		self.type = self.json.get("type")
+		self.status = self.json.get("status")
+		self.modifiedTime = self.json.get("modifiedTime")
+		self.lastMessageSummary = Message(self.json.get("lastMessageSummary", {}))
+		self.condition = self.json.get("condition")
+		self.icon = self.json.get("icon")
+		self.latestActivityTime = self.json.get("latestActivityTime")
+		self.author = UserProfile(self.json.get("author", {}))
+		self.extensions = self.json.get("extensions", {})
+		self.comId = self.json.get("ndcId")
+		self.createdTime = self.json.get("createdTime")
+
+		for member in self.json.get("membersSummary", []):
+			self.membersSummary.append(UserProfile(member))
+
+
+
+class MessageList:
+	def __init__(self, data: dict = []):
+		self.json = data
+		paging = self.json.get("paging", {})
+		
+		self.messages = list()
+		self.nextPageToken = paging.get("nextPageToken")
+		self.prevPageToken = paging.get("prevPageToken")
+		for message in self.json.get("messageList", []):
+			self.messages.append(Message(message))
