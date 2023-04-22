@@ -8,7 +8,7 @@ from .exceptions import check_exceptions
 
 class Requester:
 	def __init__(self, session: Union[ClientSession, Session], deviceId: str = None, auto_device: bool = False, proxies: dict = None, verify = None):
-		self.api = "https://service.narvii.com/api/v1"
+		self.api = "https://service.aminoapps.com/api/v1"
 		self.sid = None
 		self.deviceId = deviceId
 		self.gen = Generator(auto_device)

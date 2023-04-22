@@ -87,7 +87,7 @@ class LocalClient(Client):
 		filename = str(uuid4()).upper()
 		сover, video = f"{filename}_thumb.jpg", f"{filename}.mp4"
 		
-		data = {
+		data = dumps({
 			"clientRefId": int(timestamp() / 10 % 1000000000),
 			"content": message,
 			"mediaType": 123,
@@ -101,7 +101,7 @@ class LocalClient(Client):
 			"timestamp": int(timestamp() * 1000),
 			"mediaUhqEnabled": mediaUhqEnabled,
 			"extensions": {}	
-		}
+		})
 		
 		files = {
 			video: (video, videoFile.read(), 'video/mp4'),
@@ -112,7 +112,7 @@ class LocalClient(Client):
 		response = self.req.make_request(
 			method="POST",
 			endpoint=f"/x{self.comId}/s/chat/thread/{chatId}/message",
-			payload=dumps(data),
+			payload=data,
 			files=files
 		)
 		
@@ -266,3 +266,86 @@ class LocalClient(Client):
 		)
 		
 		return response.status_code
+	
+	def get_wiki_folders(self, folderId: str = None):
+		fId = f"/{folderId}/item-previews" if folderId else ""
+		
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/x{self.comId}/s/item-category{fId}"
+		)
+		
+		return response.json()
+	
+	def get_all_approved_wikis(self, size: int = 10):
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/x{self.comId}/s/item?type=catalog-all&pagingType=t&size={size}"
+		)
+		
+		return response.json()
+
+	def get_community_stickers(self, size: int = 25):
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/x{self.comId}/s/store/items?size={size}&sectionGroupId=sticker&storeGroupId=community-shared&pagingType=t"
+		)
+		
+		return response.json()
+	
+	def get_community_stickerpack(self, stickerId: str):
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/x{self.comId}/s/sticker-collection/{stickerId}?includeStickers=1"
+		)
+
+		return response.json()
+	
+	def get_pending_wikis(self, size: int = 25):
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/x{self.comId}/s/knowledge-base-request?pagingType=t&size={size}&type=pending"
+		)
+
+		return response.json()
+	
+	def reject_wiki(self, requestId: str):
+		response = self.req.make_request(
+			method="POST",
+			endpoint=f"/x{self.comId}/s/knowledge-base-request/{requestId}/reject",
+			body=dumps({ "timestamp": int(timestamp() * 1000) })
+		)
+
+		return response.status_code
+	
+	def approve_wiki(self, requestId: str, method: str = "replace"):
+		base = { "timestamp": int(timestamp() * 1000) }
+		if method in ['create', 'new']:
+			base.update({"actionType": "create", "destinationCategoryIdList": []})
+		elif method in ['replace', 'update']:
+			base.update({"actionType": "replace"})
+		else: raise Exception("invalid value of method")
+
+		response = self.req.make_request(
+			method="POST",
+			endpoint=f"/x{self.comId}/s/knowledge-base-request/{requestId}/approve",
+			body=dumps({ "timestamp": int(timestamp() * 1000) })
+		)
+
+		return response.status_code
+
+	def get_flags(self, size: int = 25):
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/x{self.comId}/s/flag?size={size}&status=pending&type=all&pagingType=t"
+		)
+
+		return response.json()
+	
+	def view_wiki(self, wikiId: str):
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/x{self.comId}/s/item/{wikiId}"
+		)
+
+		return response.json()

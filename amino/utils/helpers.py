@@ -48,7 +48,7 @@ class Generator:
 			headers["NDC-MSG-SIG"] = self.signature(data=data)
 		if sid:          headers["NDCAUTH"] = f"sid={sid}"
 		if content_type: headers["Content-Type"] = content_type
-		if type == "==PAYLOAD==": headers.pop("Content-Type")
+		if content_type == "==PAYLOAD==": headers.pop("Content-Type")
 		
 		return headers
 

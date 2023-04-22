@@ -230,7 +230,7 @@ class Client(SocketHandler, Callbacks):
 		filename = str(uuid4()).upper()
 		сover, video = f"{filename}_thumb.jpg", f"{filename}.mp4"
 		
-		data = {
+		data = dumps({
 			"clientRefId": int(timestamp() / 10 % 1000000000),
 			"content": message,
 			"mediaType": 123,
@@ -244,7 +244,7 @@ class Client(SocketHandler, Callbacks):
 			"timestamp": int(timestamp() * 1000),
 			"mediaUhqEnabled": mediaUhqEnabled,
 			"extensions": {}	
-		}
+		})
 		
 		files = {
 			video: (video, videoFile.read(), 'video/mp4'),
@@ -255,7 +255,7 @@ class Client(SocketHandler, Callbacks):
 		response = self.req.make_request(
 			method="POST",
 			endpoint=f"/g/s/chat/thread/{chatId}/message",
-			payload=dumps(data),
+			payload=data,
 			files=files
 		)
 		
@@ -591,3 +591,19 @@ class Client(SocketHandler, Callbacks):
 
 		response = self.req.make_request(method="GET", endpoint=f"/g/s/block?start={start}&size={size}")
 		return objects.userProfileList(loads(response.text))
+
+	def get_hall_of_fame(self, size: int = 25):
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/g/s/topic/0/feed/community?size={size}&categoryKey=customized&type=discover&pagingType=t&moduleId=23ce695c-c4da-4da5-a6c4-7777ba23b7aa"
+		)
+
+		return response.json()
+	
+	def get_recommended_communities(self, size: int = 25):
+		response = self.req.make_request(
+			method="GET",
+			endpoint=f"/g/s/topic/0/feed/community?size={size}&categoryKey=recommendation&type=discover&pagingType=t"
+		)
+
+		return response.json()
