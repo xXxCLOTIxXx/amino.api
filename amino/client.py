@@ -255,7 +255,7 @@ class Client(SocketHandler, Callbacks):
 		response = self.req.make_request(
 			method="POST",
 			endpoint=f"/g/s/chat/thread/{chatId}/message",
-			body=dumps(data),
+			payload=dumps(data),
 			files=files
 		)
 		

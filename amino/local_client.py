@@ -112,7 +112,7 @@ class LocalClient(Client):
 		response = self.req.make_request(
 			method="POST",
 			endpoint=f"/x{self.comId}/s/chat/thread/{chatId}/message",
-			payload=data,
+			payload=dumps(data),
 			files=files
 		)
 		
