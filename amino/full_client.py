@@ -309,7 +309,7 @@ class FullClient(SocketHandler, Callbacks):
 		response = self.req.make_request(
 			method="POST",
 			endpoint=f"/x{ndcId}" or "/g" + f"/s/chat/thread/{chatId}/message",
-			body=dumps(data),
+			payload=data,
 			files=files
 		)
 		

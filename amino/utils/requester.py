@@ -25,15 +25,17 @@ class Requester:
 		if act == 2:self.deviceId=deviceId
 
 
-	def make_request(self, method: str, endpoint: str, body = None, type=None, successfully: int = 200, headers = None, files = None):
+	def make_request(self, method: str, endpoint: str, body = None, type=None, successfully: int = 200, headers = None, files = None, payload = None):
 		if self.session_type!="sync":raise InvalidFunctionСall("You cannot select this function, your session type is async")
 		
-		response = self.session.request(method, f"{self.api}{endpoint}", files=files, proxies=self.proxies, verify=self.verify, data=body, headers=headers if headers else self.gen.get_headers(sid=self.sid, data=body, deviceId=self.deviceId, content_type=type))
+		if payload != None and body == None: type = "==PAYLOAD=="
+
+		response = self.session.request(method, f"{self.api}{endpoint}", files=files, proxies=self.proxies, verify=self.verify, data=body, headers=headers if headers else self.gen.get_headers(sid=self.sid, data=body or payload, deviceId=self.deviceId, content_type=type))
 		return check_exceptions(response.text) if response.status_code != successfully else response
 
 
-	async def make_async_request(self, method: str, endpoint: str, body = None, type=None, successfully: int = 200, headers = None, files = None):
+	async def make_async_request(self, method: str, endpoint: str, body = None, type=None, successfully: int = 200, headers = None, files = None, payload = None):
 		if self.session_type=="sync":raise InvalidFunctionСall("You cannot select this function, your session type is sync")
 		
-		response = await self.session.request(method, f"{self.api}{endpoint}", files=files, data=body, headers=headers if headers else self.gen.get_headers(sid=self.sid, data=body, deviceId=self.deviceId, content_type=type))
+		response = await self.session.request(method, f"{self.api}{endpoint}", files=files, data=body, headers=headers if headers else self.gen.get_headers(sid=self.sid, data=body or payload, deviceId=self.deviceId, content_type=type))
 		return check_exceptions(await response.text()) if response.status != successfully else response
