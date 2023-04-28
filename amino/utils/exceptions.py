@@ -26,6 +26,13 @@ class AgeTooLow(Exception):
 	def __init__(*args, **kwargs):
 		Exception.__init__(*args, **kwargs)
 
+
+class UnsupportedLanguage(Exception):
+	def __init__(*args, **kwargs):
+		Exception.__init__(*args, **kwargs)
+
+
+
 errors = {
 }
 

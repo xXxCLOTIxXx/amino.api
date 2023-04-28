@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 info = {
 	"name": "amino.api",
-	"version": "1.2b2",
+	"version": "1.2b3",
 	"github_page": "https://github.com/xXxCLOTIxXx/amino.api",
 	"download_link": "https://github.com/xXxCLOTIxXx/amino.api/archive/refs/heads/main.zip",
 	"license": "MIT",
