@@ -133,7 +133,9 @@ class LocalClient(Client):
 		response = self.req.make_request(method="DELETE", endpoint=f"/x{self.comId}/s/chat/thread/{chatId}/message/{messageId}")
 		return response.status_code
 		
-	def post_poll(self, title: str, content: str, pollVariants: list, duration: int = 7, backgroundColor: str = None, imageForPollOptions: str = None) -> int:
+		
+	def post_poll(self, comId: Union[str, int], title: str, content: str, pollVariants: list, duration: int = 7, backgroundColor: str = None, imageForPollOptions: str = None) -> int:
+
 		data = {
 			"taggedBlogCategoryIdList": [],
 			"content": content,
@@ -194,16 +196,12 @@ class LocalClient(Client):
 			}
 			if imageForPollOptions == None: pollOpt.pop("mediaList")
 			data['polloptList'].append(pollOpt)
-
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{self.comId}/s/blog",
-			body=dumps(data)
-		)
 		
+		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/blog", body=dumps(data))
 		return response.status_code
-		
-	def post_blog(self, title: str, content: str, imageList: list = None, captionList: list = None, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False, extensions: dict = None, crash: bool = False):
+
+
+	def post_blog(self, comId: Union[str, int], title: str, content: str, imageList: list = None, captionList: list = None, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False, extensions: dict = None, crash: bool = False):
 		mediaList = []
 
 		if captionList is not None:
@@ -232,15 +230,11 @@ class LocalClient(Client):
 		if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
 		if categoriesList: data["taggedBlogCategoryIdList"] = categoriesList
 
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{self.comId}/s/blog",
-			body=dumps(data)
-		)
-		
+		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/blog", body=dumps(data))
 		return response.status_code
 
-	def post_wiki(self, title: str, content: str, icon: str = None, imageList: list = None, keywords: str = None, backgroundColor: str = None, fansOnly: bool = False):
+
+	def post_wiki(self, comId: Union[str, int], title: str, content: str, icon: str = None, imageList: list = None, keywords: str = None, backgroundColor: str = None, fansOnly: bool = False):
 		mediaList = []
 
 		for image in imageList:
@@ -259,66 +253,43 @@ class LocalClient(Client):
 		if fansOnly: data["extensions"] = {"fansOnly": fansOnly}
 		if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
 		
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{self.comId}/s/item",
-			body=dumps(data)
-		)
-		
+		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/item", body=dumps(data))
 		return response.status_code
 	
-	def get_wiki_folders(self, folderId: str = None):
+
+	def get_wiki_folders(self, comId: Union[str, int], folderId: str = None):
 		fId = f"/{folderId}/item-previews" if folderId else ""
 		
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{self.comId}/s/item-category{fId}"
-		)
-		
-		return response.json()
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item-category{fId}")
+		return self.objects.WikiFoldes(response.json())
 	
-	def get_all_approved_wikis(self, size: int = 10):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{self.comId}/s/item?type=catalog-all&pagingType=t&size={size}"
-		)
-		
+
+	def get_all_approved_wikis(self, comId: Union[str, int], size: int = 10):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item?type=catalog-all&pagingType=t&size={size}")
 		return response.json()
 
-	def get_community_stickers(self, size: int = 25):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{self.comId}/s/store/items?size={size}&sectionGroupId=sticker&storeGroupId=community-shared&pagingType=t"
-		)
-		
+
+	def get_community_stickers(self, comId: Union[str, int], size: int = 25):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/store/items?size={size}&sectionGroupId=sticker&storeGroupId=community-shared&pagingType=t")
 		return response.json()
 	
-	def get_community_stickerpack(self, stickerId: str):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{self.comId}/s/sticker-collection/{stickerId}?includeStickers=1"
-		)
 
+	def get_community_stickerpack(self, comId: Union[str, int], stickerId: str):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/sticker-collection/{stickerId}?includeStickers=1")
 		return response.json()
 	
-	def get_pending_wikis(self, size: int = 25):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{self.comId}/s/knowledge-base-request?pagingType=t&size={size}&type=pending"
-		)
 
+	def get_pending_wikis(self, comId: Union[str, int], size: int = 25):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/knowledge-base-request?pagingType=t&size={size}&type=pending")
 		return response.json()
 	
-	def reject_wiki(self, requestId: str):
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{self.comId}/s/knowledge-base-request/{requestId}/reject",
-			body=dumps({ "timestamp": int(timestamp() * 1000) })
-		)
 
+	def reject_wiki(self, comId: Union[str, int], requestId: str):
+		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/knowledge-base-request/{requestId}/reject", body=dumps({ "timestamp": int(timestamp() * 1000) }))
 		return response.status_code
 	
-	def approve_wiki(self, requestId: str, method: str = "replace"):
+
+	def approve_wiki(self, comId: Union[str, int], requestId: str, method: str = "replace"):
 		base = { "timestamp": int(timestamp() * 1000) }
 		if method in ['create', 'new']:
 			base.update({"actionType": "create", "destinationCategoryIdList": []})
@@ -326,26 +297,14 @@ class LocalClient(Client):
 			base.update({"actionType": "replace"})
 		else: raise Exception("invalid value of method")
 
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{self.comId}/s/knowledge-base-request/{requestId}/approve",
-			body=dumps({ "timestamp": int(timestamp() * 1000) })
-		)
-
+		response = self.req.make_request(method="POST",endpoint=f"/x{comId}/s/knowledge-base-request/{requestId}/approve", body=dumps({ "timestamp": int(timestamp() * 1000) }))
 		return response.status_code
 
-	def get_flags(self, size: int = 25):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{self.comId}/s/flag?size={size}&status=pending&type=all&pagingType=t"
-		)
-
+	def get_flags(self, comId: Union[str, int], size: int = 25):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/flag?size={size}&status=pending&type=all&pagingType=t")
 		return response.json()
 	
-	def view_wiki(self, wikiId: str):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{self.comId}/s/item/{wikiId}"
-		)
 
+	def view_wiki(self, comId: Union[str, int], wikiId: str):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item/{wikiId}")
 		return response.json()

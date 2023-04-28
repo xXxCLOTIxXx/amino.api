@@ -77,11 +77,12 @@ class linkInfo:
 	def __init__(self, data: dict = {}):
 		self.json = data
 		linkInfo = self.json.get("extensions", {}).get("linkInfo", {})
+		self.community = CommunityInfo(self.json.get("extensions", {}).get("community"))
 
 		self.path = self.json.get("path")
 		self.objectId = linkInfo.get("objectId")
 		self.targetCode = linkInfo.get("targetCode")
-		self.comId = linkInfo.get("ndcId")
+		self.comId = linkInfo.get("ndcId") if linkInfo.get("ndcId") else self.community.comId
 		self.fullPath = linkInfo.get("fullPath")
 		self.shortCode = linkInfo.get("shortCode")
 		self.objectType = linkInfo.get("objectType")
@@ -273,3 +274,30 @@ class MessageList:
 		self.prevPageToken = paging.get("prevPageToken")
 		for message in self.json.get("messageList", []):
 			self.messages.append(Message(message))
+
+
+
+class WikiFoldes:
+	def __init__(self, data: dict = []):
+		self.json = data
+		self.folders = list
+		self.allFolders = self.Folder(self.json.get("allEntriesItemCategory"))
+		for folder in self.json.get("itemCategoryList"):
+			self.folders.append(self.Folder(folder))
+
+
+	class Folder:
+		def __init__(self, data: dict = []):
+			self.json = data
+			self.itemsCount = self.json.get("itemsCount")
+			self.parentCategoryId = self.json.get("parentCategoryId")
+			self.categoryId = self.json.get("categoryId")
+			self.content = self.json.get("itemsCount")
+			self.itemsCount = self.json.get("content")
+			self.extensions = self.json.get("extensions")
+			self.createdTime = self.json.get("createdTime")
+			self.subcategoriesCount = self.json.get("subcategoriesCount")
+			self.label = self.json.get("label")
+			self.mediaList = self.json.get("mediaList")
+			self.icon = self.json.get("icon")
+			self.author = UserProfile(self.json.get("author"))

@@ -279,11 +279,11 @@ class FullClient(SocketHandler, Callbacks):
 		response = self.req.session.request("POST", "https://ads.tapdaq.com/v4/analytics/reward", proxies=self.req.proxies, verify=self.req.verify, data=data, headers=self.req.gen.tapjoy_headers)
 		return exceptions.check_exceptions(response.text) if response.status_code != 204 else response.status_code
 
-	def send_video(self, chatId: str, ndcId: Union[str,int] = None, message: str = None, videoFile: BytesIO = None, imageFile: BytesIO = None, mediaUhqEnabled: bool = False):
+	def send_video(self, chatId: str, comId: Union[str,int] = None, message: str = None, videoFile: BytesIO = None, imageFile: BytesIO = None, mediaUhqEnabled: bool = False):
 		
 		filename = str(uuid4()).upper()
 		сover, video = f"{filename}_thumb.jpg", f"{filename}.mp4"
-		
+
 		data = dumps({
 			"clientRefId": int(timestamp() / 10 % 1000000000),
 			"content": message,
@@ -306,17 +306,12 @@ class FullClient(SocketHandler, Callbacks):
 			'payload': (None, data, 'application/octet-stream')
 		}
 		
-		nId = f"x{ndcId}" or "g"
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/{nId}/s/chat/thread/{chatId}/message",
-			payload=data,
-			files=files
-		)
-		
+		nId = f"x{comId}" or "g"
+		response = self.req.make_request(method="POST", endpoint=f"/{nId}/s/chat/thread/{chatId}/message", payload=data, files=files)
 		return response.status_code
 		
-	def post_poll(self, ndcId: Union[str, int], title: str, content: str, pollVariants: list, duration: int = 7, backgroundColor: str = None, imageForPollOptions: str = None) -> int:
+	def post_poll(self, comId: Union[str, int], title: str, content: str, pollVariants: list, duration: int = 7, backgroundColor: str = None, imageForPollOptions: str = None) -> int:
+
 		data = {
 			"taggedBlogCategoryIdList": [],
 			"content": content,
@@ -378,15 +373,11 @@ class FullClient(SocketHandler, Callbacks):
 			if imageForPollOptions == None: pollOpt.pop("mediaList")
 			data['polloptList'].append(pollOpt)
 		
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{ndcId}/s/blog",
-			body=dumps(data)
-		)
-		
+		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/blog", body=dumps(data))
 		return response.status_code
-		
-	def post_blog(self, ndcId: Union[str, int], title: str, content: str, imageList: list = None, captionList: list = None, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False, extensions: dict = None, crash: bool = False):
+
+
+	def post_blog(self, comId: Union[str, int], title: str, content: str, imageList: list = None, captionList: list = None, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False, extensions: dict = None, crash: bool = False):
 		mediaList = []
 
 		if captionList is not None:
@@ -415,15 +406,11 @@ class FullClient(SocketHandler, Callbacks):
 		if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
 		if categoriesList: data["taggedBlogCategoryIdList"] = categoriesList
 
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{ndcId}/s/blog",
-			body=dumps(data)
-		)
-		
+		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/blog", body=dumps(data))
 		return response.status_code
 
-	def post_wiki(self, ndcId: Union[str, int], title: str, content: str, icon: str = None, imageList: list = None, keywords: str = None, backgroundColor: str = None, fansOnly: bool = False):
+
+	def post_wiki(self, comId: Union[str, int], title: str, content: str, icon: str = None, imageList: list = None, keywords: str = None, backgroundColor: str = None, fansOnly: bool = False):
 		mediaList = []
 
 		for image in imageList:
@@ -442,66 +429,43 @@ class FullClient(SocketHandler, Callbacks):
 		if fansOnly: data["extensions"] = {"fansOnly": fansOnly}
 		if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
 		
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{ndcId}/s/item",
-			body=dumps(data)
-		)
-		
+		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/item", body=dumps(data))
 		return response.status_code
 	
-	def get_wiki_folders(self, ndcId: Union[str, int], folderId: str = None):
+
+	def get_wiki_folders(self, comId: Union[str, int], folderId: str = None):
 		fId = f"/{folderId}/item-previews" if folderId else ""
 		
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{ndcId}/s/item-category{fId}"
-		)
-		
-		return response.json()
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item-category{fId}")
+		return self.objects.WikiFoldes(response.json())
 	
-	def get_all_approved_wikis(self, ndcId: Union[str, int], size: int = 10):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{ndcId}/s/item?type=catalog-all&pagingType=t&size={size}"
-		)
-		
+
+	def get_all_approved_wikis(self, comId: Union[str, int], size: int = 10):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item?type=catalog-all&pagingType=t&size={size}")
 		return response.json()
 
-	def get_community_stickers(self, ndcId: Union[str, int], size: int = 25):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{ndcId}/s/store/items?size={size}&sectionGroupId=sticker&storeGroupId=community-shared&pagingType=t"
-		)
-		
+
+	def get_community_stickers(self, comId: Union[str, int], size: int = 25):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/store/items?size={size}&sectionGroupId=sticker&storeGroupId=community-shared&pagingType=t")
 		return response.json()
 	
-	def get_community_stickerpack(self, ndcId: Union[str, int], stickerId: str):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{ndcId}/s/sticker-collection/{stickerId}?includeStickers=1"
-		)
 
+	def get_community_stickerpack(self, comId: Union[str, int], stickerId: str):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/sticker-collection/{stickerId}?includeStickers=1")
 		return response.json()
 	
-	def get_pending_wikis(self, ndcId: Union[str, int], size: int = 25):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{ndcId}/s/knowledge-base-request?pagingType=t&size={size}&type=pending"
-		)
 
+	def get_pending_wikis(self, comId: Union[str, int], size: int = 25):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/knowledge-base-request?pagingType=t&size={size}&type=pending")
 		return response.json()
 	
-	def reject_wiki(self, ndcId: Union[str, int], requestId: str):
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{ndcId}/s/knowledge-base-request/{requestId}/reject",
-			body=dumps({ "timestamp": int(timestamp() * 1000) })
-		)
 
+	def reject_wiki(self, comId: Union[str, int], requestId: str):
+		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/knowledge-base-request/{requestId}/reject", body=dumps({ "timestamp": int(timestamp() * 1000) }))
 		return response.status_code
 	
-	def approve_wiki(self, ndcId: Union[str, int], requestId: str, method: str = "replace"):
+
+	def approve_wiki(self, comId: Union[str, int], requestId: str, method: str = "replace"):
 		base = { "timestamp": int(timestamp() * 1000) }
 		if method in ['create', 'new']:
 			base.update({"actionType": "create", "destinationCategoryIdList": []})
@@ -509,42 +473,23 @@ class FullClient(SocketHandler, Callbacks):
 			base.update({"actionType": "replace"})
 		else: raise Exception("invalid value of method")
 
-		response = self.req.make_request(
-			method="POST",
-			endpoint=f"/x{ndcId}/s/knowledge-base-request/{requestId}/approve",
-			body=dumps({ "timestamp": int(timestamp() * 1000) })
-		)
-
+		response = self.req.make_request(method="POST",endpoint=f"/x{comId}/s/knowledge-base-request/{requestId}/approve", body=dumps({ "timestamp": int(timestamp() * 1000) }))
 		return response.status_code
 
-	def get_flags(self, ndcId: Union[str, int], size: int = 25):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{ndcId}/s/flag?size={size}&status=pending&type=all&pagingType=t"
-		)
-
+	def get_flags(self, comId: Union[str, int], size: int = 25):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/flag?size={size}&status=pending&type=all&pagingType=t")
 		return response.json()
 	
-	def view_wiki(self, ndcId: Union[str, int], wikiId: str):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/x{ndcId}/s/item/{wikiId}"
-		)
 
+	def view_wiki(self, comId: Union[str, int], wikiId: str):
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item/{wikiId}")
 		return response.json()
 	
+
 	def get_hall_of_fame(self, size: int = 25):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/g/s/topic/0/feed/community?size={size}&categoryKey=customized&type=discover&pagingType=t&moduleId=23ce695c-c4da-4da5-a6c4-7777ba23b7aa"
-		)
-
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/topic/0/feed/community?size={size}&categoryKey=customized&type=discover&pagingType=t&moduleId=23ce695c-c4da-4da5-a6c4-7777ba23b7aa")
 		return response.json()
 	
 	def get_recommended_communities(self, size: int = 25):
-		response = self.req.make_request(
-			method="GET",
-			endpoint=f"/g/s/topic/0/feed/community?size={size}&categoryKey=recommendation&type=discover&pagingType=t"
-		)
-
+		response = self.req.make_request(method="GET", endpoint=f"/g/s/topic/0/feed/community?size={size}&categoryKey=recommendation&type=discover&pagingType=t")
 		return response.json()
