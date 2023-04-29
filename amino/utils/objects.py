@@ -1,4 +1,12 @@
 
+
+class ROOT:
+	class Users:
+		team_amino = "000000000-0000-0000-0000-000000000000"
+		news_feed = "000000000-0000-0000-0000-000000000001"
+
+
+
 class profile:
 	def __init__(self, data: dict = {}):
 		self.json = data
@@ -280,10 +288,15 @@ class MessageList:
 class WikiFoldes:
 	def __init__(self, data: dict = []):
 		self.json = data
-		self.folders = list
-		self.allFolders = self.Folder(self.json.get("allEntriesItemCategory"))
-		for folder in self.json.get("itemCategoryList"):
+		self.folders = list()
+		self.wikis = list()
+		self.allFolders = self.Folder(self.json.get("allEntriesItemCategory", {}))
+		self.itemCategory = self.Folder(self.json.get("itemCategory", {}))
+		for folder in self.json.get("itemCategoryList", []) if self.json.get("itemCategoryList") else self.json.get("childrenWrapper", {}).get("itemCategoryList", []):
 			self.folders.append(self.Folder(folder))
+		for wiki in self.json.get("childrenWrapper", {}).get("itemList", []):
+			self.wikis.append(self.Wiki(wiki))
+
 
 
 	class Folder:
@@ -300,4 +313,58 @@ class WikiFoldes:
 			self.label = self.json.get("label")
 			self.mediaList = self.json.get("mediaList")
 			self.icon = self.json.get("icon")
-			self.author = UserProfile(self.json.get("author"))
+			self.author = UserProfile(self.json.get("author", {}))
+
+
+	class Wiki:
+		def __init__(self, data: dict = []):
+			self.json = data
+			self.itemId = self.json.get("itemId")
+			self.status = self.json.get("status")
+			self.style = self.json.get("style")
+			self.globalCommentsCount = self.json.get("globalCommentsCount")
+			self.modifiedTime = self.json.get("modifiedTime")
+			self.votedValue = self.json.get("votedValue")
+			self.globalVotesCount = self.json.get("globalVotesCount")
+			self.globalVotedValue = self.json.get("globalVotedValue")
+			self.author = UserProfile(self.json.get("author", {}))
+			self.contentRating = self.json.get("contentRating")
+			self.label = self.json.get("label")
+			self.keywords = self.json.get("keywords")
+			self.needHidden = self.json.get("needHidden")
+			self.guestVotesCount = self.json.get("guestVotesCount")
+			self.extensions = self.json.get("extensions")
+			self.votesCount = self.json.get("votesCount")
+			self.comId = self.json.get("ndcId")
+			self.createdTime = self.json.get("createdTime")
+			self.mediaList = self.json.get("mediaList")
+			self.commentsCount = self.json.get("commentsCount")
+
+
+
+
+class WikiInfo:
+	def __init__(self, data: dict = []):
+		self.json = data
+		self.globalVotesCount = self.json.get("globalVotesCount")
+		self.globalVotedValue = self.json.get("globalVotedValue")
+		self.votedValue = self.json.get("votedValue")
+		self.keywords = self.json.get("keywords")
+		self.mediaList = self.json.get("mediaList")
+		self.style = self.json.get("style")
+		self.author = UserProfile(self.json.get("author", {}))
+		self.tipInfo = self.json.get("tipInfo")
+		self.contentRating = self.json.get("contentRating")
+		self.title = self.json.get("label")
+		self.content = self.json.get("content")
+		self.needHidden = self.json.get("needHidden")
+		self.guestVotesCount = self.json.get("guestVotesCount")
+		self.status = self.json.get("status")
+		self.globalCommentsCount = self.json.get("globalCommentsCount")
+		self.modifiedTime = self.json.get("modifiedTime")
+		self.itemId = self.json.get("itemId")
+		self.extensions = self.json.get("extensions")
+		self.votesCount = self.json.get("votesCount")
+		self.comId = self.json.get("ndcId")
+		self.createdTime = self.json.get("createdTime")
+		self.commentsCount = self.json.get("commentsCount")

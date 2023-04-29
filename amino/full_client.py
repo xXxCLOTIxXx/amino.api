@@ -433,12 +433,26 @@ class FullClient(SocketHandler, Callbacks):
 		return response.status_code
 	
 
-	def get_wiki_folders(self, comId: Union[str, int], folderId: str = None):
-		fId = f"/{folderId}/item-previews" if folderId else ""
-		
+	def get_blog_info(self, comId: str, blogId: str = None, wikiId: str = None):
+		if blogId:
+			response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/blog/{blogId}")
+			return response.json()
+
+
+		elif wikiId:
+			response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item/{wikiId}")
+			return objects.WikiInfo(response.json()["item"])
+
+
+
+
+
+	def get_wiki_items(self, comId: Union[str, int], categoryId: str = None, start: int = 0, size: int = 100):
+		fId = f"/{categoryId}?pagingType=t&size={size}&start={start}" if categoryId else ""
+
 		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item-category{fId}")
-		return self.objects.WikiFoldes(response.json())
-	
+		return objects.WikiFoldes(response.json())
+
 
 	def get_all_approved_wikis(self, comId: Union[str, int], size: int = 10):
 		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item?type=catalog-all&pagingType=t&size={size}")

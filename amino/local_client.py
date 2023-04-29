@@ -261,8 +261,7 @@ class LocalClient(Client):
 		fId = f"/{folderId}/item-previews" if folderId else ""
 		
 		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item-category{fId}")
-		return self.objects.WikiFoldes(response.json())
-	
+		return objects.WikiFoldes(response.json())
 
 	def get_all_approved_wikis(self, comId: Union[str, int], size: int = 10):
 		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/item?type=catalog-all&pagingType=t&size={size}")
