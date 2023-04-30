@@ -444,6 +444,10 @@ class FullClient(SocketHandler, Callbacks):
 			return objects.WikiInfo(response.json()["item"])
 
 
+	def get_chat_thread(self, chatId: str, comId: Union[str, int] = None):
+
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/chat/thread/{chatId}")
+		return objects.Thread(response.json()["thread"])
 
 
 

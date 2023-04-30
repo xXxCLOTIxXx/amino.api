@@ -85,7 +85,7 @@ class linkInfo:
 	def __init__(self, data: dict = {}):
 		self.json = data
 		linkInfo = self.json.get("extensions", {}).get("linkInfo", {})
-		self.community = CommunityInfo(self.json.get("extensions", {}).get("community"))
+		self.community = CommunityInfo(self.json.get("extensions", {}).get("community", {}))
 
 		self.path = self.json.get("path")
 		self.objectId = linkInfo.get("objectId")
@@ -266,6 +266,11 @@ class Thread:
 		self.extensions = self.json.get("extensions", {})
 		self.comId = self.json.get("ndcId")
 		self.createdTime = self.json.get("createdTime")
+		self.userId = self.json.get("uid")
+		self.publishToGlobal = self.json.get("publishToGlobal")
+		self.tipInfo = self.json.get("tipInfo")
+		self.chatBubbles = self.json.get("chatBubbles")
+
 
 		for member in self.json.get("membersSummary", []):
 			self.membersSummary.append(UserProfile(member))
