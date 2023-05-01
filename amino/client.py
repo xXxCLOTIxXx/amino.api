@@ -314,13 +314,6 @@ class Client(SocketHandler, Callbacks):
 		return exceptions.check_exceptions(response.text) if response.status_code != 204 else response.status_code
 
 
-	def send_active_obj(self, comId: str, tz: int = None, timers: list = None):
-		#TODO
-		data = json_minify(dumps({"userActiveTimeChunkList": timers if timers else self.req.gen.timers(), "timestamp": int(timestamp() * 1000), "optInAdsFlags": 2147483647, "timezone": tz if tz else self.req.gen.timezone()}))
-		response = self.req.make_request(method="POST", endpoint=f"/x{comId}/s/community/stats/user-active-time", body=data)
-		return response.status_code
-
-
 	def request_verify_code(self, email: str, resetPassword: bool = False):
 
 		data = {
@@ -485,7 +478,7 @@ class Client(SocketHandler, Callbacks):
 		return objects.UserProfile(loads(response.text)["userProfile"])
 
 
-	def get_chat_threads(self, start: int = 0, size: int = 25):
+	def get_my_chats(self, start: int = 0, size: int = 25):
 
 		response = self.req.make_request(method="GET", endpoint=f"/g/s/chat/thread?type=joined-me&start={start}&size={size}")
 		return objects.ThreadList(loads(response.text)["threadList"])
@@ -494,7 +487,7 @@ class Client(SocketHandler, Callbacks):
 	def get_chat_thread(self, chatId: str):
 
 		response = self.req.make_request(method="GET", endpoint=f"/g/s/chat/thread/{chatId}")
-		return objects.ThreadList(loads(response.text)["thread"])
+		return objects.Thread(loads(response.text)["thread"])
 
 
 	def get_chat_members(self, chatId: str, start: int = 0, size: int = 25, type: str = "default"):
@@ -553,8 +546,7 @@ class Client(SocketHandler, Callbacks):
 
 	def get_chat_messages(self, chatId: str, size: int = 25, pageToken: str = None):
 
-		response = self.req.make_request(method="GET",
-			endpoint=f"/g/s/chat/thread/{chatId}/message?v=2&pagingType=t&size={size}{f'&pageToken={pageToken}' if pageToken else ''}")
+		response = self.req.make_request(method="GET",endpoint=f"/g/s/chat/thread/{chatId}/message?v=2&pagingType=t&size={size}{f'&pageToken={pageToken}' if pageToken else ''}")
 		return objects.MessageList(loads(response.text))
 
 
@@ -724,7 +716,7 @@ class Client(SocketHandler, Callbacks):
 
 	def unfollow(self, userId: str):
 
-		response = self.req.make_request(method="DELETE", endpoint=f"/g/s/user-profile/{userId}/member/{self.profile.userId}")
+		response = self.req.make_request(method="DELETE", endpoint=f"/g/s/user-profile/{self.profile.userId}/member/{userId}")
 		return response.status_code
 
 	def block(self, userId: str):
