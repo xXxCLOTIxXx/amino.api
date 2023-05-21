@@ -11,7 +11,7 @@ from .utils.exceptions import SocketNotStarted
 
 class SocketHandler:
 	def __init__(self, req, sock_trace: bool = False, debug: bool = False):
-		self.socket_url = "wss://ws1.aminoapps.com"
+		self.socket_url = "wss://ws1.narvii.com"
 		self.debug = debug
 		self.socket = None
 		self.reconnectTime = 60

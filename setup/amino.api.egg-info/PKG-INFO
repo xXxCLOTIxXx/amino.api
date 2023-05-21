@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: amino.api
+Version: 1.2b7
+Summary: Library for creating amino bots and scripts.
+Home-page: https://github.com/xXxCLOTIxXx/amino.api
+Author: Xsarz
+Author-email: xsarzy@gmail.com
+License: MIT
+Download-URL: https://github.com/xXxCLOTIxXx/amino.api/archive/refs/heads/main.zip
+Description: <h1 align="center">Amino.API</h1>
+        <h2 align="center">Unofficial library to interact with Aminoapps.</h2>
+        
+        Developers:
+        - Xsarz: https://linktr.ee/xsarz
+        - imperialwool: https://linktr.ee/imperialwool
+Keywords: aminoapps,aminoxz,amino,amino-bot,pymino,medialab,python-amino,amino.py,narvii,api,python,python3,python3.x,xsarz,imperialwool,official
+Platform: UNKNOWN
+Description-Content-Type: text/markdown
