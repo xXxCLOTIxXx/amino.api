@@ -42,14 +42,12 @@ class Generator:
 			"Host": "service.narvii.com",
 			"Accept-Encoding": "gzip",
 			"Connection": "Upgrade"
-		}
+			}
 		if data:
 			headers["Content-Length"] = str(len(data))
 			headers["NDC-MSG-SIG"] = self.signature(data=data)
-		if sid:          headers["NDCAUTH"] = f"sid={sid}"
-		if content_type: headers["Content-Type"] = content_type
-		if content_type == "==PAYLOAD==": headers.pop("Content-Type")
-		
+		if sid:headers["NDCAUTH"] = f"sid={sid}"
+		if content_type:headers["Content-Type"] = content_type
 		return headers
 
 	def get_ws_headers(self, final: str, sid: str = None, deviceId: str = None):

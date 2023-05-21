@@ -11,7 +11,7 @@ from .utils.exceptions import SocketNotStarted
 
 class SocketHandler:
 	def __init__(self, req, sock_trace: bool = False, debug: bool = False):
-		self.socket_url = "wss://ws1.narvii.com"
+		self.socket_url = "wss://ws1.aminoapps.com"
 		self.debug = debug
 		self.socket = None
 		self.reconnectTime = 60
@@ -110,7 +110,6 @@ class Callbacks:
 			"1:0": self.on_strike_message,
 			"2:110": self.on_voice_message,
 			"3:113": self.on_sticker_message,
-			"51:0": self.on_share_user,
 			"52:0": self.on_voice_chat_not_answered,
 			"53:0": self.on_voice_chat_not_cancelled,
 			"54:0": self.on_voice_chat_not_declined,
@@ -194,7 +193,6 @@ class Callbacks:
 
 		return registerHandler
 
-	def on_share_user(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]))
 	def on_text_message(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]))
 	def on_image_message(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]))
 	def on_youtube_message(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]))

@@ -1,6 +1,5 @@
 """
 Author: Xsarz
-Сo-author: imperialwool
 
 Enjoy using!
 """
@@ -12,10 +11,9 @@ from .client import Client
 from .local_client import LocalClient
 from .full_client import FullClient
 
-from .async_client import AsyncClient
-from .async_local_client import AsyncLocalClient
-from .async_socket import AsyncSocket
-from .async_full_client import AsyncFullClient
+from .asynclib.client import AsyncClient
+from .asynclib.local_client import AsyncLocalClient
+from .asynclib.socket import AsyncSocket
 
 from os import system as s
 from json import loads
@@ -25,7 +23,7 @@ __title__ = 'amino.api'
 __author__ = 'Xsarz'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2023 Xsarz'
-__version__ = '1.2b7'
+__version__ = '1.0b2'
 __newest__ = loads(get("https://pypi.org/pypi/amino.api/json").text)["info"]["version"]
 
 
