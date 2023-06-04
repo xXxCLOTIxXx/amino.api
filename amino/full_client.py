@@ -510,4 +510,10 @@ class FullClient(SocketHandler, Callbacks):
 	
 	def get_recommended_communities(self, size: int = 25):
 		response = self.req.make_request(method="GET", endpoint=f"/g/s/topic/0/feed/community?size={size}&categoryKey=recommendation&type=discover&pagingType=t")
-		return response.json()
+		return objects.communityList(response.json())
+
+
+	def get_user_info(self, userId: str, comId: str = None):
+
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/user-profile/{userId}" if comId else f"/g/s/user-profile/{userId}")
+		return objects.UserProfile(response.json()["userProfile"])
