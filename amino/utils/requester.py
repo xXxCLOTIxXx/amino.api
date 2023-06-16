@@ -7,11 +7,11 @@ from .exceptions import InvalidFunctionСall, InvalidSessionType
 from .exceptions import check_exceptions
 
 class Requester:
-	def __init__(self, session: Union[ClientSession, Session], deviceId: str = None, auto_device: bool = False, proxies: dict = None, verify = None):
+	def __init__(self, session: Union[ClientSession, Session], deviceId: str = None, auto_device: bool = False, proxies: dict = None, verify = None, language: str = 'ru'):
 		self.api = "https://service.aminoapps.com/api/v1"
 		self.sid = None
 		self.deviceId = deviceId
-		self.gen = Generator(auto_device)
+		self.gen = Generator(auto_device, language)
 		self.session = session
 		self.proxies = proxies
 		self.verify = verify

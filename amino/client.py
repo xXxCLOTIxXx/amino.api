@@ -15,10 +15,10 @@ from binascii import hexlify
 from os import urandom
 
 class Client(SocketHandler, Callbacks):
-	def __init__(self, socket_enabled: bool = True, socket_debug: bool = False, socket_trace: bool = False,  auto_device: bool = False, deviceId: str = None, proxies: dict = None, certificatePath = None):
+	def __init__(self, language: str = 'ru', socket_enabled: bool = True, socket_debug: bool = False, socket_trace: bool = False,  auto_device: bool = False, deviceId: str = None, proxies: dict = None, certificatePath = None):
 		self.session = Session()
 		self.profile = objects.profile()
-		self.req = Requester(session=self.session, deviceId=deviceId, auto_device=auto_device, proxies=proxies, verify=certificatePath)
+		self.req = Requester(session=self.session, deviceId=deviceId, auto_device=auto_device, proxies=proxies, verify=certificatePath, language=language)
 		self.socket_enabled = socket_enabled
 
 		SocketHandler.__init__(self, self.req, socket_trace, socket_debug)

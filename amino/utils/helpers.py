@@ -11,11 +11,12 @@ from uuid import uuid4
 
 
 class Generator:
-	def __init__(self, auto_device: bool = False):
+	def __init__(self, auto_device: bool = False, language: str = "ru"):
 		self.PREFIX = bytes.fromhex("19")
 		self.SIG_KEY = bytes.fromhex("DFA5ED192DDA6E88A12FE12130DC6206B1251E44")
 		self.DEVICE_KEY = bytes.fromhex("E7309ECC0953C6FA60005B2765F99DBBC965C8E9")
 		self.auto_device = auto_device
+		self.language = language
 
 
 	def signature(self, data: Union[str, bytes]):
@@ -34,8 +35,8 @@ class Generator:
 		saved_device = self.get_device()
 		headers = {
 			"NDCDEVICEID": self.generate_deviceId() if self.auto_device else deviceId if deviceId else saved_device.get("deviceId"),
-			"NDCLANG": "ru",
-			"Accept-Language": "ru-RU",
+			"NDCLANG": self.language.lower(),
+			"Accept-Language": f"{self.language.lower()}-{self.language.upper()}",
 			"SMDEVICEID": "20230109055041eecd2b9dd8439235afe4522cb5dacd26011dba6bbfeeb752", 
 			"User-Agent": saved_device.get("user_agent"),
 			"Content-Type": "application/json; charset=utf-8",
