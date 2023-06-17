@@ -11,11 +11,20 @@ from typing import BinaryIO, Union
 from uuid import uuid4
 from io import BytesIO
 from time import timezone
+
+
+
 class LocalClient(Client):
-	def __init__(self, comId: int, profile: objects.profile, deviceId: str = None, proxies: dict = None, certificatePath = None):
-		self.profile = profile
+	def __init__(self, comId: Union[str,int] = None, profile: objects.profile = None, language: str = 'ru', deviceId: str = None, proxies: dict = None, certificatePath = None):
+		self.profile = profile if profile else objects.profile()
 		self.comId = comId
-		Client.__init__(self, deviceId=deviceId, proxies=proxies, certificatePath=certificatePath)
+		Client.__init__(self, deviceId=deviceId, proxies=proxies, certificatePath=certificatePath,  language=language)
+
+
+	def set_comId(self, comId: Union[str,int] = None):
+		self.comId = comId
+		return self.comId
+
 
 	def join_chat(self, chatId: str):
 		response = self.req.make_request(method="POST", endpoint=f"/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}", type="application/x-www-form-urlencoded")
@@ -307,18 +316,6 @@ class LocalClient(Client):
 	def view_wiki(self, wikiId: str):
 		response = self.req.make_request(method="GET", endpoint=f"/x{self.comId}/s/item/{wikiId}")
 		return response.json()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

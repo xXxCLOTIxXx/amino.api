@@ -12,7 +12,7 @@ from uuid import uuid4
 from io import BytesIO
 
 class FullClient(SocketHandler, Callbacks):
-	def __init__(self, language: str = 'ru', socket_enabled: bool = True, socket_debug: bool = False, socket_trace: bool = False,  auto_device: bool = False, deviceId: str = None, proxies: dict = None, certificatePath = None):
+	def __init__(self,  language: str = 'ru', socket_enabled: bool = True, socket_debug: bool = False, socket_trace: bool = False,  auto_device: bool = False, deviceId: str = None, proxies: dict = None, certificatePath = None):
 		self.session = Session()
 		self.profile = objects.profile()
 		self.req = Requester(session=self.session, deviceId=deviceId, auto_device=auto_device, proxies=proxies, verify=certificatePath, language=language)
@@ -517,3 +517,54 @@ class FullClient(SocketHandler, Callbacks):
 
 		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/user-profile/{userId}" if comId else f"/g/s/user-profile/{userId}")
 		return objects.UserProfile(response.json()["userProfile"])
+
+
+
+	def get_all_users(self, comId: Union[str, int], type: str = "recent", start: int = 0, size: int = 25):
+
+		if type not in ["recent", "banned", "featured", "leaders", "curators"]:raise exceptions.IncorrectType(type)
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/user-profile?type={type}&start={start}&size={size}")
+		return objects.userProfileList(response.json())
+
+
+	def get_online_users(self, comId: Union[str, int], start: int = 0, size: int = 25):
+
+		response = self.req.make_request(method="GET", endpoint=f"/x{comId}/s/live-layer?topic=ndtopic:x{comId}:online-members&start={start}&size={size}")
+		return objects.userProfileList(response.json())
+
+
+
+
+
+	def comment(self, message: str, userId: str = None, blogId: str = None, wikiId: str = None, replyTo: str = None, isGuest: bool = False, comId: Union[str, int] = None):
+		data = {
+			"content": message,
+			"stickerId": None,
+			"type": 0,
+			"timestamp": int(timestamp() * 1000)
+		}
+
+		if replyTo: data["respondTo"] = replyTo
+
+
+		comType = "g-comment" if comId is None else "g-comment" if isGuest else "comment"
+
+		if userId:
+			data["eventSource"] = "UserProfileView"
+			url = f"/s/user-profile/{userId}/{comType}"
+
+		elif blogId:
+			data["eventSource"] = "PostDetailView"
+			url = f"/s/blog/{blogId}/{comType}"
+
+		elif wikiId:
+			data["eventSource"] = "PostDetailView"
+			url = f"/s/item/{wikiId}/{comType}"
+
+		else: raise exceptions.IncorrectType()
+
+		if comId: url= f"/x{comId}"+ url
+		else:url= "/g" + url
+
+		response = self.req.make_request(method="POST", endpoint=url, body=dumps(data))
+		return response.status_code
